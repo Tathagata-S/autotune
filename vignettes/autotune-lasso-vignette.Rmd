@@ -1,5 +1,5 @@
 ---
-title: "Autotune Lasso"
+title: "autotune Lasso"
 output: rmarkdown::html_vignette
 # output: rmarkdown::pdf_document
 vignette: >
@@ -17,15 +17,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-The R package `Autotune` implements the Lasso with data-driven tuning for linear models.
+The R package `autotune` implements the Lasso with data-driven tuning for linear models.
 
 ## Installation and Loading
 ### Installation
-The development version of the `Autotune` package can be installed from GitHub using
+The development version of the `autotune` package can be installed from GitHub using
 ```{r install-github, eval = FALSE}
 # install.packages("devtools")
 # Ensure that you have the Rcpp package installed with version >=1.0.13
-# devtools::install_github("Tathagata-S/Autotune")
+# devtools::install_github("Tathagata-S/autotune")
 ```
 When installing from GitHub, in order to build the package from source, you need to have the appropriate R development tools installed ([Rtools](https://cran.r-project.org/bin/windows/Rtools/) on Windows, or [these tools](https://mac.r-project.org/tools/) on Mac).
 
@@ -33,11 +33,11 @@ When installing from GitHub, in order to build the package from source, you need
 ### Load Package
 After installation, the package can be loaded in the standard way:
 ```{r setup}
-library(Autotune)
+library(autotune)
 ```
 
 ## High Dimensional Regression
-`Autotune` performs lasso via the `autotune_lasso()` function. 
+`autotune` performs lasso via the `autotune_lasso()` function. 
 
 We illustrate autotune lasso on simulated data using a linear model with $s=10$, $n=300$, $p=500$. Reader can also specify different configurations of data generating process in the following code chunk.
 
@@ -56,7 +56,7 @@ y = x %*% beta + rnorm(n, sd = sqrt(var(x%*%beta)/snr))
 ```
 
 
-### Runtime of Autotune Lasso
+### Runtime of autotune Lasso
 Given data (x, y), run the autotune lasso as follows with default $\alpha = 0.01$.
 
 ```{r}
@@ -89,9 +89,9 @@ ptm2 <- proc.time()
 fit.glmnet <- cv.glmnet(x, y)
 proc.time()-ptm2
 ```
-So, Autotune Lasso shows faster runtimes as compared to CV Lasso.
+So, autotune Lasso shows faster runtimes as compared to CV Lasso.
 
-## Comparison of quality of tuning between Autotune and CV Lasso
+## Comparison of quality of tuning between autotune and CV Lasso
 Now, we will visualize the quality of lambdas selected by autotune and CV with respect to the 10-fold CV MSE and true Relative MSE.
 ```{r, fig.width=7.5, fig.height=7.5}
 plot(fit.glmnet, cex.lab = 1.5)
@@ -207,7 +207,6 @@ X_test = sp500.percent[(1:rang) + n, 3: (dim(sp500.percent)[2])]
 Y_test = sp500.percent[(1:rang) + n, 1]
 x_test <- scale(X_test)
 y_test <- Y_test - mean(Y_test)
-row_sd[7] <- mean((y_test)^2)
 # Default value of beta_iter_max is 40
 ans_autotune <- autotune_lasso(x_train, y_train, beta_iter_max = 40, trace_it = TRUE)
 pred_err_autotune <- mean( (y_test - x_test %*% ans_autotune$beta)^2 )

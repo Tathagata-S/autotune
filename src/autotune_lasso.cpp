@@ -8,12 +8,12 @@ List autotune_lasso(SEXP xin,
                     bool standardize = true,
                     bool standardize_response = true,
                     bool intercept = true,
-                    bool active = false,
                     bool trace_it = false,
                     double tolerance = 1e-4,
                     double beta_tolerance = 1e-3,
                     short int iter_max = 30,
                     short int beta_iter_max = 40,
+                    bool active = false,
                     bool PR_norm_l2 = false) {
   
   NumericVector y;

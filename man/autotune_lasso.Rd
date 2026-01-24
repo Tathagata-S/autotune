@@ -2,19 +2,21 @@
 % Please edit documentation in R/autotune_lasso.R
 \name{autotune_lasso}
 \alias{autotune_lasso}
-\title{Autotune LASSO: Fitting a linear model with fast and automatic lasso regularization}
+\title{autotune Lasso: Fitting a linear model with fast and automatic lasso regularization}
 \usage{
 autotune_lasso(xin,
 yin, 
 alpha = 0.01, 
-standardize = true, 
-standardize_response = true, 
-intercept = true, 
-trace_it = false, 
+standardize = TRUE, 
+standardize_response = TRUE, 
+intercept = TRUE, 
+trace_it = FALSE, 
 tolerance = 1e-4, 
 beta_tolerance = 1e-3, 
 iter_max = 30,
-beta_iter_max = 40, ...)
+beta_iter_max = 40,
+active = FALSE,
+PR_norm_l2 = FALSE)
 }
 \arguments{
 \item{xin}{Matrix of predictors, with one column for each predictor.
@@ -66,7 +68,7 @@ descent allowed when sigma is not updating. Default value is 40.}
 residuals for ordering them instead of the default l1 norm.}
 }
 \value{
-A list with various intermediate and final outputs produced by Autotune LASSO in its regularization path.
+A list with various intermediate and final outputs produced by autotune Lasso in its regularization path.
 
 \item{beta}{ Final estimates of regression coefficients. }
 \item{a0}{ Intercept of the fit. }
@@ -75,7 +77,7 @@ A list with various intermediate and final outputs produced by Autotune LASSO in
 variance estimate \eqn{\hat\sigma^2} has converged.}
 \item{sigma_sq}{Final estimate of noise variance \eqn{\sigma^2}}
 \item{CD.path.details}{ A list of additionals details about the coordinate descent path taken by
-Autotune lasso:}
+autotune Lasso:}
 \itemize{
    \item{\code{sorted_predictors:}}{       Decreasing ordering of predictors in terms of
 their contribution to predicting the response values.}
@@ -86,8 +88,8 @@ before noise variance estimate \eqn{\hat{\sigma}^2} converged.}
 \item{\code{no_of_iter_after_lambda_conv:}}{     After noise variance estimate \eqn{\hat{\sigma}^2} has
 converged, it is the number of iterations of coordinate descent required
 for coefficients \eqn{\hat\beta} to converge.}
-\item{\code{no_of_iterations:}}{     Total of iterations of coordinate descent implemented by Autotune Lasso}
-    \item{\code{lambda0:}}{        Value of \eqn{\lambda_0} used in the Autotune LASSO.
+\item{\code{no_of_iterations:}}{     Total of iterations of coordinate descent implemented by autotune Lasso}
+    \item{\code{lambda0:}}{        Value of \eqn{\lambda_0} used in the autotune LASSO.
 Refer to the original paper for details.} 
    \item{\code{support_set:}}{       Final set of predictors included in the support set for
     sigma estimation by autotune lasso.}
@@ -103,7 +105,7 @@ final estimate of noise variance \eqn{\sigma^2}}}
 \description{
 Fits a linear model via alternative optimization of penalized gaussian maximum likelihood 
 which is a biconvex function of regression coefficients \eqn{\beta} and noise variance \eqn{\sigma^2}. 
-Autotune LASSO's regularization path quickly picks out a good lambda for LASSO and then
+autotune Lasso's regularization path quickly picks out a good lambda for LASSO and then
 returns the corresponding linear fit along with various attributes related to the fit.
 }
 \examples{

@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // autotune_lasso
-List autotune_lasso(SEXP xin, SEXP yin, float alpha, bool standardize, bool standardize_response, bool intercept, bool active, bool trace_it, double tolerance, double beta_tolerance, short int iter_max, short int beta_iter_max, bool PR_norm_l2);
-RcppExport SEXP _Autotune_autotune_lasso(SEXP xinSEXP, SEXP yinSEXP, SEXP alphaSEXP, SEXP standardizeSEXP, SEXP standardize_responseSEXP, SEXP interceptSEXP, SEXP activeSEXP, SEXP trace_itSEXP, SEXP toleranceSEXP, SEXP beta_toleranceSEXP, SEXP iter_maxSEXP, SEXP beta_iter_maxSEXP, SEXP PR_norm_l2SEXP) {
+List autotune_lasso(SEXP xin, SEXP yin, float alpha, bool standardize, bool standardize_response, bool intercept, bool trace_it, double tolerance, double beta_tolerance, short int iter_max, short int beta_iter_max, bool active, bool PR_norm_l2);
+RcppExport SEXP _autotune_autotune_lasso(SEXP xinSEXP, SEXP yinSEXP, SEXP alphaSEXP, SEXP standardizeSEXP, SEXP standardize_responseSEXP, SEXP interceptSEXP, SEXP trace_itSEXP, SEXP toleranceSEXP, SEXP beta_toleranceSEXP, SEXP iter_maxSEXP, SEXP beta_iter_maxSEXP, SEXP activeSEXP, SEXP PR_norm_l2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,24 +22,24 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type standardize(standardizeSEXP);
     Rcpp::traits::input_parameter< bool >::type standardize_response(standardize_responseSEXP);
     Rcpp::traits::input_parameter< bool >::type intercept(interceptSEXP);
-    Rcpp::traits::input_parameter< bool >::type active(activeSEXP);
     Rcpp::traits::input_parameter< bool >::type trace_it(trace_itSEXP);
     Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
     Rcpp::traits::input_parameter< double >::type beta_tolerance(beta_toleranceSEXP);
     Rcpp::traits::input_parameter< short int >::type iter_max(iter_maxSEXP);
     Rcpp::traits::input_parameter< short int >::type beta_iter_max(beta_iter_maxSEXP);
+    Rcpp::traits::input_parameter< bool >::type active(activeSEXP);
     Rcpp::traits::input_parameter< bool >::type PR_norm_l2(PR_norm_l2SEXP);
-    rcpp_result_gen = Rcpp::wrap(autotune_lasso(xin, yin, alpha, standardize, standardize_response, intercept, active, trace_it, tolerance, beta_tolerance, iter_max, beta_iter_max, PR_norm_l2));
+    rcpp_result_gen = Rcpp::wrap(autotune_lasso(xin, yin, alpha, standardize, standardize_response, intercept, trace_it, tolerance, beta_tolerance, iter_max, beta_iter_max, active, PR_norm_l2));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_Autotune_autotune_lasso", (DL_FUNC) &_Autotune_autotune_lasso, 13},
+    {"_autotune_autotune_lasso", (DL_FUNC) &_autotune_autotune_lasso, 13},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_Autotune(DllInfo *dll) {
+RcppExport void R_init_autotune(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

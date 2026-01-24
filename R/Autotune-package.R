@@ -1,12 +1,12 @@
-#' Autotune: Lasso with data-driven tuning for linear models
+#' autotune: Lasso with data-driven tuning for linear models
 #'
 #' This package fits lasso path for high-dimensional regression using
 #' coordinate descent while automatically tuning it's regularization parameter.
-#' Autotune Lasso is 10-50 times than the standard glmnet implementation of lasso,
+#' autotune Lasso is 10-50 times than the standard glmnet implementation of lasso,
 #' and over 100 times faster than scaled lasso. Additionally, it gives reliable 
 #' noise level estimate for the regression problem. 
 #'
-#' \tabular{ll}{ Package: \tab Autotune\cr Type: \tab Package\cr Version: \tab
+#' \tabular{ll}{ Package: \tab autotune\cr Type: \tab Package\cr Version: \tab
 #' 1.0\cr Date: \tab 2025-09-18\cr }
 #' Very simple to use. Accepts \code{x,y} data for linear regression model,
 #' and produces the regularization path which automatically estimates an
@@ -20,7 +20,7 @@
 #' @author Tathagata Sadhukhan Ines Wilms Stephan Smeekes
 #' and Sumanta Basu\cr Maintainer: Tathagata Sadhukhan(ts767@@cornell.edu)
 #' @docType package
-#' @name Autotune-package
+#' @name autotune-package
 #' @keywords lasso data-driven-tuning package fast accurate 
 #' 
 #' @examples
