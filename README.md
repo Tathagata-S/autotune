@@ -1,5 +1,5 @@
 # autotune
-Repository for R package of autotune LASSO
+Repository for R package of autotune Lasso
 
 ## Installation
 You can install the development version from GitHub:
