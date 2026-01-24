@@ -1,5 +1,5 @@
-# Autotune
-Repository for R package of Autotune LASSO
+# autotune
+Repository for R package of autotune LASSO
 
 ## Installation
 You can install the development version from GitHub:
@@ -9,7 +9,7 @@ You can install the development version from GitHub:
 # install.packages("devtools")
 
 # Ensure that you have the Rcpp package installed with version >=1.0.13
-devtools::install_github("Tathagata-S/Autotune")
+devtools::install_github("Tathagata-S/autotune")
 ```
 When installing from GitHub, in order to build the package from source, you need to have the appropriate R development tools installed ([Rtools](https://cran.r-project.org/bin/windows/Rtools/) on Windows, or [these tools](https://mac.r-project.org/tools/) on Mac).
 
@@ -20,7 +20,7 @@ You can also the build the vignette while installing the development version fro
 ```r
 # install.packages("devtools")
 
-devtools::install_github("Tathagata-S/Autotune", build_vignettes = TRUE, dependencies = TRUE)
+devtools::install_github("Tathagata-S/autotune", build_vignettes = TRUE, dependencies = TRUE)
 
 vignette("autotune-lasso-vignette")
 ```
@@ -31,7 +31,7 @@ Here’s a quick example:
 ```
 
 ```r
-library(Autotune)
+library(autotune)
 ?autotune_lasso
 
 set.seed(10)
