@@ -8,12 +8,13 @@ List autotune_lasso(SEXP xin,
                     bool standardize = true,
                     bool standardize_response = true,
                     bool intercept = true,
+                    bool active = false,
                     bool trace_it = false,
                     double tolerance = 1e-4,
                     double beta_tolerance = 1e-3,
                     short int iter_max = 30,
                     short int beta_iter_max = 40,
-                    bool active = false,
+                    short int active_iter_max = 5,
                     bool PR_norm_l2 = false) {
   
   NumericVector y;
@@ -44,10 +45,6 @@ List autotune_lasso(SEXP xin,
     stop("Length of y doesn't match with the no of observations in x matrix.");
   }
   
-  if( alpha <= 0.0 || alpha >= 1.0) {
-    stop("Alpha must be strictly between 0 and 1.");
-  }
-  
   NumericVector beta(p, 0.0);
   NumericVector predmeans(p, 0.0);
   NumericVector predsds(p, 0.0);
@@ -64,7 +61,7 @@ List autotune_lasso(SEXP xin,
         x(_,j) = (x(_,j) - mu_j) / sd_j;
       } else {
         NumericVector zeroVector(n, 0.0);
-        x(_, j) = clone(zeroVector);
+        x(_, j) = zeroVector;
       }
     }
   }
@@ -79,14 +76,14 @@ List autotune_lasso(SEXP xin,
   double sigma2est = var(r);
   IntegerVector active_indices = seq_len(p) - 1;
   // NumericMatrix resi_mat(iter_max+1, n);
-  // NumericMatrix beta_mat(iter_max+1, p);
+  NumericMatrix beta_mat(iter_max+1, p);
   NumericVector vec_sig_beta_count(iter_max);
   NumericVector sigma2_seq(iter_max);
   IntegerVector support_set, old_support_set;
-  int max_no_of_preds = std::min((4*p) / 5, (4*n) / 5);
+  int max_no_of_preds = std::min(p / 2, n / 2);
   NumericMatrix u(n, max_no_of_preds);
   double init_lambda, lambda_value;
-  short int flag = 1;
+  short int flag = 6;
   short int s;
   bool null_support = FALSE;
   
@@ -97,13 +94,18 @@ List autotune_lasso(SEXP xin,
   init_lambda = max(abs(temp)) / n;
   lambda_value = init_lambda * (1.0 / (sigma2est));
   
+  // if (lambda0.isNull()) {
+  // } else {
+  //   lambda_value = as<double>(lambda0);
+  // }
+  
   int idx;
   int iteration = 1;
   double error = R_PosInf;
   NumericMatrix temp_stor(n, p);
   double lambda_effective, beta_temp;
-  double mean_abs_old_beta, mean_abs_diff;
   NumericVector old_beta(p), partial_res_l1(p), change_in_xbeta;
+  double mean_abs_old_beta, mean_abs_diff;
   
   while (error > tolerance && iteration <= iter_max) {
     old_beta = clone(beta);
@@ -117,11 +119,13 @@ List autotune_lasso(SEXP xin,
     for (int j = 0; j < p; j++) {
       idx = active_indices[j];
       beta_temp = (sum(x(_, idx) * r) / n) + beta[idx];
+      
       if (std::abs(beta_temp) > lambda_effective) {
         beta[idx] = beta_temp - (beta_temp > 0 ? 1 : -1) * lambda_effective;
       } else {
         beta[idx] = 0.0;
       }
+      
       change_in_xbeta = x(_, idx) * (beta[idx] - old_beta[idx]);
       r = r - change_in_xbeta;
     }
@@ -150,9 +154,10 @@ List autotune_lasso(SEXP xin,
     
     NumericVector ytemp = clone(y);
     int iter = 0;
-    NumericVector uk(n), xk(n);
+    NumericVector xk(n);
+    NumericVector uk(n);
     NumericVector proj_coeffs(max_no_of_preds - 1);
-    double mean_uk;
+    
     int idx;
     for (int k = 0; k < max_no_of_preds; k++) {
       idx = active_indices[k];
@@ -168,13 +173,12 @@ List autotune_lasso(SEXP xin,
       }
       
       uk = u(_, k);
-      mean_uk = mean(uk);
-      NumericVector yhat = uk * (sum((uk - rep(mean_uk, uk.size())) * ytemp)) / (sum((uk - rep(mean_uk, uk.size())) * (uk - rep(mean_uk, uk.size()))));
+      NumericVector yhat = uk * (sum(uk * ytemp)) / (sum(uk * uk));
       double rss = sum(pow(ytemp - yhat, 2));
-      double sst = sum(pow(ytemp, 2));
+      double sst = sum(pow(ytemp - mean(ytemp), 2));
       double ss_reg = sst - rss;
-      double f_stat = ((n - k) * ss_reg)/rss;
-      double cutoff = R::qf(1 - alpha, 1, n - k, true, false);
+      double f_stat = ((n - k - 1) * ss_reg)/rss;
+      double cutoff = R::qf(1 - alpha, 1, n - k - 1, true, false);
       
       if (f_stat < cutoff) {
         break;
@@ -188,7 +192,7 @@ List autotune_lasso(SEXP xin,
     sigma2est = ((n - 1) / std::max(n - iter, 2)) * var(ytemp);
     
     // resi_mat(iteration - 1, _) = r;
-    // beta_mat(iteration - 1, _) = beta;
+    beta_mat(iteration - 1, _) = beta;
     vec_sig_beta_count[iteration - 1] = iter;
     sigma2_seq[iteration - 1] = sigma2est;
     
@@ -202,12 +206,14 @@ List autotune_lasso(SEXP xin,
     iteration++;
     
     if (setdiff(support_set, old_support_set).size() == 0) {
+      flag -= 6;
+    } else if (setdiff(support_set, old_support_set).size() <= 2) {
       flag--;
     } else {
-      flag = 1;
+      flag = 6;
     }
     
-    if (flag == 0) {
+    if (flag <= 0) {
       break;
     }
   }
@@ -216,83 +222,96 @@ List autotune_lasso(SEXP xin,
   
   if(support_set.size() == 0) {
     null_support = TRUE;
-    if(iteration >= 2) {
+    if(iteration >= 2){
       sigma2est = sigma2_seq[iteration - 2];
     } else {
-      sigma2est = var(y) / 10;
+      sigma2est = var(y)/10;
     }
     // active_indices = active_indices[beta[active_indices] != 0];
     // p = active_indices.size();
+    if(trace_it){Rcout<<std::endl<<"Null Support encountered. Increase the value of alpha and inspect the x and y carefully!"<<std::endl;}
   }
   
   if (iteration < iter_max) {
     // resi_mat = resi_mat(Range(0, iteration), _);
-    // beta_mat = beta_mat(Range(0, iteration), _);
+    beta_mat = beta_mat(Range(0, iteration), _);
     vec_sig_beta_count = vec_sig_beta_count[Range(0, iteration - 1)];
     sigma2_seq = sigma2_seq[Range(0, iteration - 1)];
   }
   
   
   lambda_effective = lambda_value * sigma2est / 2.0;
-  int beta_iteration = 1;
+  int beta_iteration = 1, active_set_size;
   error = R_PosInf;
   IntegerVector active_set = support_set;
   s = support_set.size();
   old_beta = clone(beta);
-  // NumericVector act_pred_count(beta_iter_max);
+  short int active_iterations = 1, s_active = 0, iterations_finding_beta = 0;
+  NumericVector act_pred_count(active_iter_max);
+  
+  
+  
+  if(!null_support){
+    active_set = support_set;
+  } else {
+    for(int j = 0; j < p; j++) {
+      if(beta[idx] != 0.0) {
+        active_set.push_back(idx);
+      }
+    }
+  }
+  
+  
+  
   
   if(active) {
-    while( beta_iteration < 2 ) {
-      
-      for(int& idx : active_set) {
-        beta_temp = (sum(x(_, idx) * r) / n) + beta[idx];
-        
-        if (std::abs(beta_temp) > lambda_effective) {
-          beta[idx] = beta_temp - (beta_temp > 0 ? 1 : -1) * lambda_effective;
-        } else {
-          beta[idx] = 0.0;
-        }
-        
-        NumericVector change_in_xbeta = x(_, idx) * (beta[idx] - old_beta[idx]);
-        r = r - change_in_xbeta;
-      }
-      
-      for (int j = active_set.size(); j < p; j++) {
-        idx = active_indices[j];
-        if((sum(x(_, idx) * r) - beta[idx])/n >= lambda_effective) {
-          active_set.push_back(idx);
-        } else {
-          r += x(_, idx) * beta[idx];
-          beta[idx] = 0;
-        }
-      }
-      
-      old_beta = clone(beta);
-      // act_pred_count[beta_iteration - 1] = active_set.size();
-      beta_iteration++;
+    
+    for (int j = active_set.size(); j < p; j++) {
+      idx = active_indices[j];
+      r += x(_, idx) * beta[idx];
+      beta[idx] = 0;
     }
     
-    while(error > beta_tolerance && beta_iteration <= beta_iter_max) {
-      NumericVector old_beta = clone(beta);
+    while(active_iterations <= active_iter_max) {
       
-      for(int& idx : active_set){
-        beta_temp = (sum(x(_, idx) * r) / n) + beta[idx];
+      beta_iteration = 1;
+      error = R_PosInf;
+      while(error > beta_tolerance && beta_iteration <= beta_iter_max) {
+        NumericVector old_beta = clone(beta);
         
-        if (std::abs(beta_temp) > lambda_effective) {
-          beta[idx] = beta_temp - (beta_temp > 0 ? 1 : -1) * lambda_effective;
-        } else {
-          beta[idx] = 0.0;
+        for(int& idx : active_set){
+          beta_temp = (sum(x(_, idx) * r) / n) + beta[idx];
+          
+          if (std::abs(beta_temp) > lambda_effective) {
+            beta[idx] = beta_temp - (beta_temp > 0 ? 1 : -1) * lambda_effective;
+          } else {
+            beta[idx] = 0.0;
+          }
+          
+          NumericVector change_in_xbeta = x(_, idx) * (beta[idx] - old_beta[idx]);
+          r = r - change_in_xbeta;
         }
+        mean_abs_old_beta = mean(abs(old_beta));
+        mean_abs_diff = mean(abs(old_beta - beta));
+        error = mean_abs_diff / std::max(mean_abs_old_beta, 1e-8);
         
-        NumericVector change_in_xbeta = x(_, idx) * (beta[idx] - old_beta[idx]);
-        r = r - change_in_xbeta;
+        beta_iteration++;
       }
-      // act_pred_count[beta_iteration - 1] = active_set.size();
-      mean_abs_old_beta = mean(abs(old_beta));
-      mean_abs_diff = mean(abs(old_beta - beta));
-      error = mean_abs_diff / std::max(mean_abs_old_beta, 1e-8);
       
-      beta_iteration++;
+      iterations_finding_beta = iterations_finding_beta + --beta_iteration;
+      act_pred_count[active_iterations - 1] = active_set.size();
+      
+      s_active = 0;
+      active_set_size = active_set.size();
+      for(int j = active_set_size; j < p; j++){
+        idx = active_indices[j];
+        if(std::abs(sum(x(_, idx) * r))/n > lambda_effective) {
+          active_set.push_back(idx);
+          s_active++;
+        }
+      }
+      if(s_active == 0) {break;}
+      active_iterations++;
     }
   } else {
     
@@ -324,17 +343,18 @@ List autotune_lasso(SEXP xin,
   Rcout << std::endl;
   
   // resi_mat(iteration, _) = r;
-  // beta_mat(iteration, _) = beta;
+  beta_mat(iteration, _) = beta;
   
   if(standardize) {
-    for(int j = 0; j < p; j++) {
-      if(predsds[j] > 0) {
-        beta[j] = beta[j]/predsds[j];
-      } else {
-        beta[j] = 0;
+    for(int i = 0; i <= iteration; i++) {
+      NumericVector col = beta_mat(i, _);
+      for(int j = 0; j < p; j++) {
+        if(predsds[j] > 0) {
+          col[j] = col[j]/predsds[j];
+        }
       }
     }
-    // beta = beta_mat(iteration, _);
+    beta = beta_mat(iteration, _);
     for(int j = 0; j < p; j++) {
       x(_, j) = x(_, j) * predsds[j] + predmeans[j];
     }
@@ -356,12 +376,17 @@ List autotune_lasso(SEXP xin,
   }
   
   double final_sigma = rev(sigma2_seq)[0];
-  // int total_iter;
-  // total_iter = iteration + beta_iteration;
+  if(active){
+    if (active_iterations < active_iter_max) {
+      act_pred_count = act_pred_count[Range(0, active_iterations - 1)];
+    }
+    beta_iteration = iterations_finding_beta;
+  }
   
   List cd_path_details = List::create(
     _["sorted_predictors"] = active_indices + 1,
     _["sigma_sq_seq"] = sigma2_seq,
+    _["beta_matrix"] = beta_mat,
     _["no_of_iter_before_lambda_conv"] = iteration,
     _["no_of_iter_after_lambda_conv"] = beta_iteration,
     _["no_of_iterations"] = iteration + beta_iteration,
@@ -369,12 +394,13 @@ List autotune_lasso(SEXP xin,
     _["active_set"] = active_set + 1,
     _["count_sig_beta"] = vec_sig_beta_count,
     _["lambda0"] = lambda_value/2.0,
-    _["null_support"] = null_support
+    _["null_support"] = null_support,
+    _["active_iterations"] = active_iterations - 1,
+    _["active_set_sizes"] = act_pred_count
   );
   
   return List::create(
     // _["residual_matrix"] = resi_mat,
-    // _["beta_matrix"] = beta_mat,
     _["beta"] = beta,
     _["a0"] = intercept_estimate,
     _["lambda"] = lambda_effective,

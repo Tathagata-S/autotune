@@ -33,6 +33,9 @@
 #' allowed when sigma is updating. Default value is 30.
 #' @param beta_iter_max Maximum number of iterations of coordinate 
 #' descent allowed when sigma is not updating. Default value is 40.
+#' @param active_iter_max If \code{active = TRUE}, maximum number of 
+#' times the active set is updated as per the violations of KKT 
+#' conditions. Default value is 5.
 #' @param PR_norm_l2 Logical flag to whether use the l2 norm of partial 
 #' residuals for ordering them instead of the default l1 norm. 
 #' 
@@ -41,13 +44,14 @@
 #' alpha = 0.01, 
 #' standardize = TRUE, 
 #' standardize_response = TRUE, 
-#' intercept = TRUE, 
+#' intercept = TRUE,
+#' active = FALSE, 
 #' trace_it = FALSE, 
 #' tolerance = 1e-4, 
 #' beta_tolerance = 1e-3, 
 #' iter_max = 30,
 #' beta_iter_max = 40,
-#' active = FALSE,
+#' active_iter_max = 5,
 #' PR_norm_l2 = FALSE)
 #' 
 #' 
@@ -66,7 +70,9 @@
 #' their contribution to predicting the response values.}
 #' \item{sigma_sq_seq:}{ A \code{no_of_iterations} length sequence of estimates
 #' noise variance \eqn{\sigma^2}. }
-#'     \item{\code{no_of_iter_before_lambda_conv:}}{      Number of iterations of coordinate descent performe
+#' \item{beta_matrix:}{ A (\code{length(sigma_sq_seq) + 1}) \eqn{\times} \code{nvars} matrix 
+#' of estimated coefficients.} 
+#' \item{\code{no_of_iter_before_lambda_conv:}}{      Number of iterations of coordinate descent performe
 #' before noise variance estimate \eqn{\hat{\sigma}^2} converged.}
 #' \item{\code{no_of_iter_after_lambda_conv:}}{     After noise variance estimate \eqn{\hat{\sigma}^2} has
 #' converged, it is the number of iterations of coordinate descent required
@@ -83,6 +89,12 @@
 #' support set came out to be a null set. In case it happens, \code{autotune_lasso} uses the
 #' estimate of support set in the previous iteration for getting the 
 #' final estimate of noise variance \eqn{\sigma^2}}}
+#' \item{\code{active_iterations:} If \code{active = TRUE}, number of 
+#' times the active set is updated as per the violations of KKT 
+#' conditions.}
+#' \item{\code{active_set_sizes:} A \code{active_iterations}-length vector denoting the size
+#' of active sets used for coordinate descent inside \code{autotune_lasso} across different 
+#' \code{active_iterations}.}
 #'   }
 #' 
 #' 

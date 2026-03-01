@@ -6,6 +6,7 @@ src/*.o
 src/*.so
 src/*.dll
 src/*.bak
+src/active_autotune.cpp
 .Rproj
 inst/doc
 /doc/
