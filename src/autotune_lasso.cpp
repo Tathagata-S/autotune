@@ -2,20 +2,20 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-List autotune_lasso(SEXP xin,
-                    SEXP yin,
-                    float alpha = 0.01,
-                    bool standardize = true,
-                    bool standardize_response = true,
-                    bool intercept = true,
-                    bool active = false,
-                    bool trace_it = false,
-                    double tolerance = 1e-4,
-                    double beta_tolerance = 1e-3,
-                    short int iter_max = 30,
-                    short int beta_iter_max = 40,
-                    short int active_iter_max = 5,
-                    bool PR_norm_l2 = false) {
+List autotune_lasso_cpp(SEXP xin,
+                        SEXP yin,
+                        float alpha = 0.01,
+                        bool standardize = true,
+                        bool standardize_response = true,
+                        bool intercept = true,
+                        bool active = false,
+                        bool trace_it = false,
+                        double tolerance = 1e-4,
+                        double beta_tolerance = 1e-3,
+                        short int iter_max = 30,
+                        short int beta_iter_max = 40,
+                        short int active_iter_max = 5,
+                        bool PR_norm_l2 = false) {
   
   NumericVector y;
   
@@ -399,14 +399,22 @@ List autotune_lasso(SEXP xin,
     _["active_set_sizes"] = act_pred_count
   );
   
-  return List::create(
+  cd_path_details.attr("class") = CharacterVector::create("autotune_lasso_path");
+  
+  List out = List::create(
     // _["residual_matrix"] = resi_mat,
     _["beta"] = beta,
     _["a0"] = intercept_estimate,
     _["lambda"] = lambda_effective,
     _["sigma_sq"] = final_sigma,
+    _["nobs"] = n,
+    _["nvars"] = p,
     _["CD.path.details"] = cd_path_details
   );
+  
+  out.attr("class") = CharacterVector::create("autotune_lasso");
+  
+  return out;
 }
 
 

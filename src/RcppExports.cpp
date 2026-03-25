@@ -10,9 +10,9 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// autotune_lasso
-List autotune_lasso(SEXP xin, SEXP yin, float alpha, bool standardize, bool standardize_response, bool intercept, bool active, bool trace_it, double tolerance, double beta_tolerance, short int iter_max, short int beta_iter_max, short int active_iter_max, bool PR_norm_l2);
-RcppExport SEXP _autotune_autotune_lasso(SEXP xinSEXP, SEXP yinSEXP, SEXP alphaSEXP, SEXP standardizeSEXP, SEXP standardize_responseSEXP, SEXP interceptSEXP, SEXP activeSEXP, SEXP trace_itSEXP, SEXP toleranceSEXP, SEXP beta_toleranceSEXP, SEXP iter_maxSEXP, SEXP beta_iter_maxSEXP, SEXP active_iter_maxSEXP, SEXP PR_norm_l2SEXP) {
+// autotune_lasso_cpp
+List autotune_lasso_cpp(SEXP xin, SEXP yin, float alpha, bool standardize, bool standardize_response, bool intercept, bool active, bool trace_it, double tolerance, double beta_tolerance, short int iter_max, short int beta_iter_max, short int active_iter_max, bool PR_norm_l2);
+RcppExport SEXP _autotune_autotune_lasso_cpp(SEXP xinSEXP, SEXP yinSEXP, SEXP alphaSEXP, SEXP standardizeSEXP, SEXP standardize_responseSEXP, SEXP interceptSEXP, SEXP activeSEXP, SEXP trace_itSEXP, SEXP toleranceSEXP, SEXP beta_toleranceSEXP, SEXP iter_maxSEXP, SEXP beta_iter_maxSEXP, SEXP active_iter_maxSEXP, SEXP PR_norm_l2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -30,13 +30,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< short int >::type beta_iter_max(beta_iter_maxSEXP);
     Rcpp::traits::input_parameter< short int >::type active_iter_max(active_iter_maxSEXP);
     Rcpp::traits::input_parameter< bool >::type PR_norm_l2(PR_norm_l2SEXP);
-    rcpp_result_gen = Rcpp::wrap(autotune_lasso(xin, yin, alpha, standardize, standardize_response, intercept, active, trace_it, tolerance, beta_tolerance, iter_max, beta_iter_max, active_iter_max, PR_norm_l2));
+    rcpp_result_gen = Rcpp::wrap(autotune_lasso_cpp(xin, yin, alpha, standardize, standardize_response, intercept, active, trace_it, tolerance, beta_tolerance, iter_max, beta_iter_max, active_iter_max, PR_norm_l2));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_autotune_autotune_lasso", (DL_FUNC) &_autotune_autotune_lasso, 14},
+    {"_autotune_autotune_lasso_cpp", (DL_FUNC) &_autotune_autotune_lasso_cpp, 14},
     {NULL, NULL, 0}
 };
 

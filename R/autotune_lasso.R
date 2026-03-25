@@ -1,9 +1,9 @@
-#' autotune Lasso: Fitting a linear model with fast and automatic lasso regularization
+#' Data-adaptive automatic and fast tuning of LM with Lasso regularization
 #' @name autotune_lasso
-#' @param xin Matrix of predictors, with one column for each predictor.
+#' @param x Matrix of predictors, with one column for each predictor.
 #' Dimension will be \code{nobs} \eqn{\times} \code{nvars}; so each row is a new observation
 #' and \code{nvars} > 1.
-#' @param yin Vector of responses.
+#' @param y Vector of responses.
 #' @param alpha Default 0.01, significance level of sequential F-tests 
 #' used for estimation of support set.
 #' @param standardize Logical flag for standardization of all variables in x, prior to
@@ -39,8 +39,8 @@
 #' @param PR_norm_l2 Logical flag to whether use the l2 norm of partial 
 #' residuals for ordering them instead of the default l1 norm. 
 #' 
-#' @usage autotune_lasso(xin,
-#' yin, 
+#' @usage autotune_lasso(x,
+#' y, 
 #' alpha = 0.01, 
 #' standardize = TRUE, 
 #' standardize_response = TRUE, 
@@ -62,7 +62,9 @@
 #' \item{lambda}{Final thresholding value \eqn{\lambda =
 #' \lambda_0\hat\sigma^2} used in the coordinate descent after noise
 #' variance estimate \eqn{\hat\sigma^2} has converged.}
-#' \item{sigma_sq}{Final estimate of noise variance \eqn{\sigma^2}}
+#' \item{sigma_sq}{ Final estimate of noise variance \eqn{\sigma^2}}
+#' \item{nobs}{ Number of observations.}
+#' \item{nvars}{ Number of variables.}
 #' \item{CD.path.details}{ A list of additionals details about the coordinate descent path taken by
 #' autotune Lasso:}
 #' \itemize{
@@ -78,10 +80,10 @@
 #' converged, it is the number of iterations of coordinate descent required
 #' for coefficients \eqn{\hat\beta} to converge.}
 #' \item{\code{no_of_iterations:}}{     Total of iterations of coordinate descent implemented by autotune Lasso}
-#'     \item{\code{lambda0:}}{        Value of \eqn{\lambda_0} used in the autotune LASSO.
+#'     \item{\code{lambda0:}}{        Value of \eqn{\lambda_0} used in the autotune Lasso.
 #' Refer to the original paper for details.} 
 #'    \item{\code{support_set:}}{       Final set of predictors included in the support set for
-#'     sigma estimation by autotune lasso.}
+#'     sigma estimation by autotune Lasso.}
 #' \item{\code{count_sig_beta:}}{ (\code{no_of_iterations})-length vector containing the
 #' support set sizes across the coordinate descent iterations while the
 #' noise variance estimate is being updated.}
@@ -103,7 +105,7 @@
 #' @description
 #' Fits a linear model via alternative optimization of penalized gaussian maximum likelihood 
 #' which is a biconvex function of regression coefficients \eqn{\beta} and noise variance \eqn{\sigma^2}. 
-#' autotune Lasso's regularization path quickly picks out a good lambda for LASSO and then
+#' The regularization path of \code{autotune_lasso} quickly picks out a good lambda for Lasso and then
 #' returns the corresponding linear fit along with various attributes related to the fit.
 #' 
 #' 
@@ -136,5 +138,11 @@
 #' var(err)
 #' 
 #' 
-autotune_lasso
+autotune_lasso <- function(x, y, ...){
+  cl <- match.call()
+  
+  fit <- autotune_lasso_cpp(xin = x, yin = y, ...)
+  fit$call <- cl
+  fit
+}
 

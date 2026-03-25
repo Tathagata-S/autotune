@@ -20,5 +20,6 @@ Suggests:
     ggExtra,
     dplyr,
     tidyr,
-    scalreg
+    scalreg,
+    Matrix
 VignetteBuilder: knitr
