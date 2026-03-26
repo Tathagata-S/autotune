@@ -124,6 +124,7 @@ The regularization path of \code{autotune_lasso} quickly picks out a good lambda
 returns the corresponding linear fit along with various attributes related to the fit.
 }
 \examples{
+library(autotune)
 set.seed(10)
 n <- 80
 p <- 400

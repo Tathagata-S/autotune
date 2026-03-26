@@ -112,6 +112,7 @@
 #' @export
 #'
 #' @examples
+#' library(autotune)
 #' set.seed(10)
 #' n <- 80
 #' p <- 400
