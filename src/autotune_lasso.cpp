@@ -15,7 +15,8 @@ List autotune_lasso_cpp(SEXP xin,
                         short int iter_max = 30,
                         short int beta_iter_max = 40,
                         short int active_iter_max = 5,
-                        bool PR_norm_l2 = false) {
+                        bool PR_norm_l2 = false,
+                        double tau = 0.5) {
   
   NumericVector y;
   
@@ -114,7 +115,7 @@ List autotune_lasso_cpp(SEXP xin,
     if(s > 0) {
       support_set.erase(support_set.begin(), support_set.end());
     }
-    lambda_effective = lambda_value * sigma2est / 2.0;
+    lambda_effective = lambda_value * sigma2est * tau;
     
     for (int j = 0; j < p; j++) {
       idx = active_indices[j];
@@ -240,7 +241,7 @@ List autotune_lasso_cpp(SEXP xin,
   }
   
   
-  lambda_effective = lambda_value * sigma2est / 2.0;
+  lambda_effective = lambda_value * sigma2est * tau;
   int beta_iteration = 1, active_set_size;
   error = R_PosInf;
   IntegerVector active_set = support_set;
