@@ -65,7 +65,7 @@
 #' \item{sigma_sq}{ Final estimate of noise variance \eqn{\sigma^2}}
 #' \item{nobs}{ Number of observations.}
 #' \item{nvars}{ Number of variables.}
-#' \item{CD.path.details}{ A list of additionals details about the coordinate descent path taken by
+#' \item{CD.path.details}{ A list of additional details about the coordinate descent path taken by
 #' autotune Lasso:}
 #' \itemize{
 #'    \item{\code{sorted_predictors:}}{       Decreasing ordering of predictors in terms of
@@ -144,6 +144,8 @@ autotune_lasso <- function(x, y, ...){
   
   fit <- autotune_lasso_cpp(xin = x, yin = y, ...)
   fit$call <- cl
+  fit$x <- x
+  fit$y <- y
   fit
 }
 
